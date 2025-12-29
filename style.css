@@ -13,58 +13,70 @@ body {
   justify-content: center;
   align-items: center;
   overflow: hidden;
+  padding: 10px; /* Добавляем отступы по краям для мобильных устройств */
 }
 
 .container {
   text-align: center;
-  padding: 20px;
+  padding: 15px;
   width: 100%;
   max-width: 500px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 h1 {
-  font-size: 28px;
-  margin-bottom: 20px;
+  font-size: clamp(18px, 5vw, 28px); /* Адаптивный размер шрифта */
+  margin-bottom: 15px;
   color: #ffcc00;
   text-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
+  width: 100%;
 }
 
 .stats {
   display: flex;
   justify-content: space-around;
-  font-size: 18px;
-  margin-bottom: 30px;
+  font-size: clamp(12px, 3vw, 18px);
+  margin-bottom: 20px;
   flex-wrap: wrap;
+  width: 100%;
+  gap: 5px;
 }
 
 .stat-item {
   background: rgba(255, 255, 255, 0.1);
-  padding: 10px 15px;
-  border-radius: 10px;
-  margin: 5px;
-  min-width: 120px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  min-width: 100px;
   text-align: center;
   backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 204, 0, 0.2);
+  flex: 1;
+  min-height: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .planet {
-  width: 180px;
-  height: 180px;
-  margin: 0 auto 30px;
+  width: clamp(120px, 30vw, 180px); /* Адаптивный размер */
+  height: clamp(120px, 30vw, 180px);
+  margin: 15px auto;
   cursor: pointer;
   transition: transform 0.1s ease;
   position: relative;
+  flex-shrink: 0;
 }
 
 .planet::before {
   content: '';
   position: absolute;
-  top: -20px;
-  left: -20px;
-  right: -20px;
-  bottom: -20px;
+  top: -15px;
+  left: -15px;
+  right: -15px;
+  bottom: -15px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(255,204,0,0.2) 0%, rgba(255,204,0,0) 70%);
   z-index: -1;
@@ -118,52 +130,59 @@ h1 {
 }
 
 .astro-info {
-  margin-top: 20px;
-  padding: 15px;
+  margin-top: 15px;
+  padding: 12px;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  font-size: 14px;
+  border-radius: 8px;
+  font-size: clamp(10px, 2.5vw, 14px);
   color: #ccc;
   backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 204, 0, 0.2);
+  width: 100%;
+  max-width: 450px;
 }
 
 .astro-info p {
   margin: 0;
+  line-height: 1.4;
 }
 
 .upgrades {
-  margin-top: 30px;
-  padding: 20px;
+  margin-top: 20px;
+  padding: 15px;
   background: rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid rgba(255, 204, 0, 0.3);
+  width: 100%;
+  max-width: 450px;
 }
 
 .upgrades h3 {
   color: #ffcc00;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
   text-align: center;
+  font-size: clamp(14px, 3.5vw, 18px);
 }
 
 .upgrade-item {
-  margin-bottom: 15px;
-  padding: 10px;
+  margin-bottom: 12px;
+  padding: 8px;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
+  border-radius: 6px;
   border: 1px solid rgba(255, 204, 0, 0.1);
 }
 
 .upgrade-item button {
   width: 100%;
-  padding: 10px;
+  padding: 8px;
   background: linear-gradient(to right, #ffcc00, #ff9900);
   color: #000;
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-size: clamp(12px, 3vw, 16px);
 }
 
 .upgrade-item button:hover {
@@ -180,8 +199,97 @@ h1 {
 }
 
 .upgrade-item p {
-  margin: 10px 0 0;
-  font-size: 14px;
+  margin: 8px 0 0;
+  font-size: clamp(10px, 2.5vw, 14px);
   color: #ccc;
   text-align: center;
+}
+
+/* Адаптивные стили для мобильных устройств */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+
+  .stat-item {
+    min-width: 80px;
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .planet {
+    width: 140px;
+    height: 140px;
+    margin: 10px auto;
+  }
+
+  .upgrades, .astro-info {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 5px;
+  }
+
+  .container {
+    padding: 8px;
+  }
+
+  .stat-item {
+    min-width: 70px;
+    padding: 5px 8px;
+    font-size: 10px;
+    min-height: 35px;
+  }
+
+  .planet {
+    width: 120px;
+    height: 120px;
+  }
+
+  .upgrades, .astro-info {
+    padding: 10px;
+  }
+
+  .upgrade-item button {
+    padding: 6px;
+    font-size: 12px;
+  }
+
+  .upgrade-item p {
+    font-size: 10px;
+  }
+}
+
+/* Для очень маленьких экранов */
+@media (max-width: 360px) {
+  .stat-item {
+    min-width: 60px;
+    padding: 4px 6px;
+    font-size: 9px;
+    min-height: 30px;
+  }
+
+  .planet {
+    width: 100px;
+    height: 100px;
+  }
+
+  .upgrades h3 {
+    font-size: 14px;
+  }
+}
+
+/* Для больших экранов */
+@media (min-width: 1024px) {
+  .container {
+    max-width: 600px;
+  }
+
+  .planet {
+    width: 200px;
+    height: 200px;
+  }
 }

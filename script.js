@@ -172,6 +172,14 @@ setInterval(() => {
 
 // Функция для создания частицы автокликера
 function createAutoParticle() {
+  // Ограничиваем количество частиц автокликеров на мобильных устройствах
+  if (isMobileDevice() && autoClickers > 5) {
+    // Если слишком много автокликеров на мобильном, создаем частицу реже
+    if (Math.random() > 0.3) { // Только 30% частиц
+      return;
+    }
+  }
+
   const particle = document.createElement('div');
   particle.classList.add('particle');
 
@@ -180,13 +188,14 @@ function createAutoParticle() {
   particle.style.left = `${Math.random() * window.innerWidth}px`;
   particle.style.top = `${Math.random() * window.innerHeight}px`;
   particle.style.color = '#00ccff';
-  particle.style.fontSize = '16px';
+  particle.style.fontSize = '14px'; // Уменьшенный размер для мобильных
   particle.style.fontWeight = 'bold';
   particle.style.pointerEvents = 'none';
   particle.style.zIndex = '20';
   particle.style.opacity = '0.8';
   particle.style.transition = 'all 2s ease-out';
   particle.style.userSelect = 'none';
+  particle.style.willChange = 'transform, opacity'; // Оптимизация производительности
 
   particlesContainer.appendChild(particle);
 
@@ -200,6 +209,11 @@ function createAutoParticle() {
   setTimeout(() => {
     particle.remove();
   }, 2000);
+}
+
+// Функция для определения мобильного устройства
+function isMobileDevice() {
+  return window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
 
 function createParticle() {
@@ -220,21 +234,22 @@ function createParticle() {
   particle.style.left = `${centerX}px`;
   particle.style.top = `${centerY}px`;
   particle.style.color = getRandomColor();
-  particle.style.fontSize = '24px';
+  particle.style.fontSize = '20px'; // Уменьшенный размер для лучшей производительности
   particle.style.fontWeight = 'bold';
   particle.style.pointerEvents = 'none';
   particle.style.zIndex = '20';
   particle.style.opacity = '1';
   particle.style.transition = 'all 1s ease-out';
   particle.style.userSelect = 'none';
+  particle.style.willChange = 'transform, opacity'; // Оптимизация производительности
 
   particlesContainer.appendChild(particle);
 
   // Анимация разлета в случайном направлении
   const angle = Math.random() * Math.PI * 2; // Случайный угол
-  const distance = 80 + Math.random() * 70; // Случайное расстояние
+  const distance = 60 + Math.random() * 50; // Уменьшенное расстояние для мобильных
   const endX = Math.cos(angle) * distance;
-  const endY = Math.sin(angle) * distance - 100; // Движение вверх с дополнительным смещением
+  const endY = Math.sin(angle) * distance - 80; // Движение вверх с дополнительным смещением
 
   setTimeout(() => {
     particle.style.transform = `translate(${endX}px, ${endY}px)`;
@@ -322,6 +337,15 @@ function updateUpgradeDisplay() {
   // Проверяем, можно ли купить улучшения
   document.getElementById('power-btn').disabled = score < powerCost;
   document.getElementById('auto-clicker-btn').disabled = score < autoClickerCost;
+
+  // Обновляем текст кнопок для мобильных устройств
+  if (isMobileDevice()) {
+    document.getElementById('power-btn').textContent = `Сила: ${clickPower} (${Math.floor(powerCost)})`;
+    document.getElementById('auto-clicker-btn').textContent = `Авто: ${autoClickers} (${Math.floor(autoClickerCost)})`;
+  } else {
+    document.getElementById('power-btn').textContent = `Улучшить силу клика (Уровень: ${clickPower})`;
+    document.getElementById('auto-clicker-btn').textContent = `Купить автокликер (Кол-во: ${autoClickers})`;
+  }
 }
 
 // Инициализация отображения улучшений
