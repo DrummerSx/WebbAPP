@@ -205,6 +205,14 @@ h1 {
   text-align: center;
 }
 
+#save-progress-btn {
+  background: linear-gradient(to right, #4CAF50, #45a049) !important;
+}
+
+#save-progress-btn:hover {
+  background: linear-gradient(to right, #5cb85c, #4cae4c) !important;
+}
+
 /* Адаптивные стили для мобильных устройств */
 @media (max-width: 768px) {
   .container {

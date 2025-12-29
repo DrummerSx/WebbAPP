@@ -66,6 +66,11 @@ async function authenticateWithBot(initData) {
             localStorage.setItem('astroClickerScore', score);
             localStorage.setItem('astroClickerPower', clickPower);
             localStorage.setItem('astroAutoClickers', autoClickers);
+
+            // Проверяем, есть ли награда за время отсутствия
+            if (telegramData.reward_for_absence && telegramData.reward_for_absence > 0) {
+                showRewardPopup(telegramData.reward_for_absence);
+            }
         } else {
             console.error('Ошибка аутентификации:', data.error);
         }
@@ -447,6 +452,20 @@ document.getElementById('auto-clicker-btn').addEventListener('click', async () =
   }
 });
 
+// Обработчик для кнопки сохранения прогресса
+document.getElementById('save-progress-btn').addEventListener('click', async () => {
+  try {
+    // Вызываем функцию синхронизации прогресса
+    await syncProgressWithBot();
+
+    // Показываем уведомление об успешном сохранении
+    showNotification("Прогресс успешно сохранен!");
+  } catch (error) {
+    console.error('Ошибка при сохранении прогресса:', error);
+    showNotification("Ошибка при сохранении прогресса");
+  }
+});
+
 // Функция покупки улучшения через бота
 async function purchaseUpgrade(itemType, itemCost) {
   if (!telegramData) {
@@ -640,6 +659,130 @@ function showNotification(message) {
   setTimeout(() => {
     notification.remove();
   }, 3000);
+}
+
+// Функция показа всплывающего окна с наградой
+function showRewardPopup(rewardAmount) {
+  // Проверяем, есть ли уже открытое всплывающее окно
+  if (document.querySelector('.reward-popup')) {
+    return; // Не создаем новое окно, если уже есть
+  }
+
+  // Создаем затемнение фона
+  const overlay = document.createElement('div');
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0';
+  overlay.style.left = '0';
+  overlay.style.width = '100%';
+  overlay.style.height = '100%';
+  overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+  overlay.style.zIndex = '9998';
+  overlay.style.display = 'flex';
+  overlay.style.justifyContent = 'center';
+  overlay.style.alignItems = 'center';
+
+  // Создаем всплывающее окно
+  const popup = document.createElement('div');
+  popup.className = 'reward-popup';
+  popup.style.backgroundColor = '#1a1a2e';
+  popup.style.padding = '30px';
+  popup.style.borderRadius = '15px';
+  popup.style.textAlign = 'center';
+  popup.style.zIndex = '9999';
+  popup.style.boxShadow = '0 0 30px rgba(255, 204, 0, 0.5)';
+  popup.style.border = '2px solid #ffcc00';
+  popup.style.maxWidth = '400px';
+  popup.style.width = '80%';
+  popup.style.color = 'white';
+
+  // Добавляем содержимое всплывающего окна
+  popup.innerHTML = `
+    <h3 style="color: #ffcc00; margin-bottom: 20px;">Возвращение в космос!</h3>
+    <p style="font-size: 18px; margin-bottom: 20px;">Пока вас не было, космос не дремал!</p>
+    <div style="font-size: 24px; font-weight: bold; color: #ffcc00; margin: 20px 0;">
+      🌟 Вы получили <span id="reward-amount">${rewardAmount}</span> астронов! 🌟
+    </div>
+    <p style="margin-bottom: 20px;">Ваши автокликеры трудились, пока вы были в отпуске.</p>
+    <button id="claim-reward-btn" style="
+      background: linear-gradient(to right, #ffcc00, #ff9900);
+      color: #000;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 25px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    ">Получить награду</button>
+  `;
+
+  // Добавляем всплывающее окно к затемнению
+  overlay.appendChild(popup);
+  document.body.appendChild(overlay);
+
+  // Обработчик для кнопки получения награды
+  document.getElementById('claim-reward-btn').addEventListener('click', () => {
+    // Добавляем награду к текущему счету
+    score += rewardAmount;
+
+    // Обновляем отображение
+    scoreElement.textContent = score;
+    localStorage.setItem('astroClickerScore', score);
+
+    // Обновляем количество астроконов у пользователя в базе данных
+    updateAstralCoinsInBot(rewardAmount);
+
+    // Удаляем всплывающее окно
+    overlay.remove();
+
+    // Показываем уведомление о получении награды
+    showNotification(`Получено ${rewardAmount} астронов!`);
+  });
+}
+
+// Функция обновления астроконов в боте
+async function updateAstralCoinsInBot(addedCoins) {
+  if (!telegramData) {
+    console.log("Нет подключения к боту для обновления астроконов");
+    return;
+  }
+
+  try {
+    // Конвертируем астроны в астрокоины (100000 астронов = 1 астрокоин)
+    const astralCoinsToAdd = Math.floor(addedCoins / 100000);
+
+    if (astralCoinsToAdd > 0) {
+      // Обновляем данные в базе данных через синхронизацию
+      const syncData = {
+        user_id: telegramData.user_id,
+        score: score, // Обновленный счет с учетом награды
+        click_power: clickPower,
+        auto_clickers: autoClickers,
+        clicks_since_last_sync: 0
+      };
+
+      const response = await fetch('http://127.0.0.1:8000/webapp/sync_progress', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(syncData)
+      });
+
+      const data = await response.json();
+
+      if (data.status === 'ok') {
+        console.log(`Добавлено ${astralCoinsToAdd} астроконов пользователю`);
+
+        // Обновляем telegramData
+        telegramData.astral_coins += astralCoinsToAdd;
+      } else {
+        console.error('Ошибка обновления астроконов:', data.error);
+      }
+    }
+  } catch (error) {
+    console.error('Ошибка при обновлении астроконов в боте:', error);
+  }
 }
 
 // Синхронизируем прогресс каждые 30 секунд
