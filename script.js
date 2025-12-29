@@ -183,7 +183,8 @@ function createAutoParticle() {
   const particle = document.createElement('div');
   particle.classList.add('particle');
 
-  particle.textContent = '+1/sec';
+  // Отображаем количество астронов, которое приносит автокликер (равно силе клика)
+  particle.textContent = `+${clickPower}/sec`;
   particle.style.position = 'absolute';
   particle.style.left = `${Math.random() * window.innerWidth}px`;
   particle.style.top = `${Math.random() * window.innerHeight}px`;
@@ -366,7 +367,11 @@ document.getElementById('power-btn').addEventListener('click', async () => {
         score -= powerCost;
         clickPower += 1;
 
+        // Обновляем данные в telegramData
+        telegramData.webapp_click_power = clickPower;
+
         scoreElement.textContent = score;
+        clickPowerElement.textContent = clickPower;
         localStorage.setItem('astroClickerScore', score);
         localStorage.setItem('astroClickerPower', clickPower);
 
@@ -380,6 +385,7 @@ document.getElementById('power-btn').addEventListener('click', async () => {
       clickPower += 1;
 
       scoreElement.textContent = score;
+      clickPowerElement.textContent = clickPower;
       localStorage.setItem('astroClickerScore', score);
       localStorage.setItem('astroClickerPower', clickPower);
 
@@ -402,7 +408,11 @@ document.getElementById('auto-clicker-btn').addEventListener('click', async () =
         score -= autoClickerCost;
         autoClickers += 1;
 
+        // Обновляем данные в telegramData
+        telegramData.webapp_auto_clickers = autoClickers;
+
         scoreElement.textContent = score;
+        autoCountElement.textContent = autoClickers;
         localStorage.setItem('astroClickerScore', score);
         localStorage.setItem('astroAutoClickers', autoClickers);
 
@@ -416,6 +426,7 @@ document.getElementById('auto-clicker-btn').addEventListener('click', async () =
       autoClickers += 1;
 
       scoreElement.textContent = score;
+      autoCountElement.textContent = autoClickers;
       localStorage.setItem('astroClickerScore', score);
       localStorage.setItem('astroAutoClickers', autoClickers);
 
@@ -492,6 +503,9 @@ async function syncProgressWithBot() {
 
       // Обновляем количество астроконов у пользователя
       if (data.astral_coins_added > 0) {
+        // Обновляем telegramData с новым количеством астроконов
+        telegramData.astral_coins += data.astral_coins_added;
+
         // Показываем уведомление о начислении астроконов
         showNotification(`Получено ${data.astral_coins_added} астроконов!`);
       }
@@ -530,6 +544,11 @@ async function fetchUserDataFromBot() {
       score = userData.astral_coins * 100000; // 1 астрокоин = 100000 астронов
       clickPower = userData.click_power || 1;
       autoClickers = userData.auto_clickers || 0;
+
+      // Обновляем данные в telegramData
+      telegramData.astral_coins = userData.astral_coins;
+      telegramData.webapp_click_power = userData.click_power || 1;
+      telegramData.webapp_auto_clickers = userData.auto_clickers || 0;
 
       // Обновляем отображение
       scoreElement.textContent = score;
