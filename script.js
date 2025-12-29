@@ -39,6 +39,8 @@ if (window.Telegram && window.Telegram.WebApp) {
 
 // Функция аутентификации с ботом
 async function authenticateWithBot(initData) {
+    console.log('Начинаем аутентификацию с initData:', initData);
+
     try {
         const response = await fetch('http://127.0.0.1:8000/webapp/auth', {
             method: 'POST',
@@ -48,16 +50,22 @@ async function authenticateWithBot(initData) {
             body: JSON.stringify({ initData })
         });
 
+        console.log('Получен ответ от сервера:', response.status);
+
         const data = await response.json();
+
+        console.log('Данные от сервера:', data);
 
         if (data.status === 'ok') {
             telegramData = data.user;
-            console.log('Аутентификация успешна:', telegramData);
+            console.log('Аутентификация успешна. Данные пользователя:', telegramData);
 
             // Загружаем данные пользователя из бота
             score = telegramData.astral_coins * 100000; // 1 астрокоин = 100000 астронов
             clickPower = telegramData.webapp_click_power || 1; // Сила клика из бота
             autoClickers = telegramData.webapp_auto_clickers || 0; // Автокликеры из бота
+
+            console.log('Обновляем локальные данные: score=', score, 'clickPower=', clickPower, 'autoClickers=', autoClickers);
 
             scoreElement.textContent = score;
             clickPowerElement.textContent = clickPower;
@@ -70,12 +78,14 @@ async function authenticateWithBot(initData) {
 
             // Проверяем, есть ли награда за время отсутствия
             if (telegramData.reward_for_absence && telegramData.reward_for_absence > 0) {
+                console.log('Обнаружена награда за отсутствие:', telegramData.reward_for_absence);
                 showRewardPopup(telegramData.reward_for_absence);
             }
 
             // Принудительно обновляем данные пользователя из бота через 1 секунду
             // для обеспечения полной синхронизации
             setTimeout(() => {
+                console.log('Выполняем принудительное обновление данных пользователя');
                 fetchUserDataFromBot();
             }, 1000);
         } else {
@@ -552,6 +562,9 @@ async function syncProgressWithBot() {
     return;
   }
 
+  console.log('Начинаем синхронизацию прогресса. Текущие данные: score=', score, 'clickPower=', clickPower, 'autoClickers=', autoClickers, 'clicksSinceLastSync=', clicksSinceLastSync);
+  console.log('Данные в telegramData: telegramData.astral_coins=', telegramData.astral_coins, 'telegramData.webapp_click_power=', telegramData.webapp_click_power, 'telegramData.webapp_auto_clickers=', telegramData.webapp_auto_clickers);
+
   // Проверяем, есть ли что синхронизировать
   if (clicksSinceLastSync === 0 && score === telegramData.astral_coins * 100000 &&
       clickPower === telegramData.webapp_click_power && autoClickers === telegramData.webapp_auto_clickers) {
@@ -574,10 +587,14 @@ async function syncProgressWithBot() {
       })
     });
 
+    console.log('Отправлен запрос синхронизации, статус ответа:', response.status);
+
     const data = await response.json();
 
+    console.log('Получен ответ от сервера при синхронизации:', data);
+
     if (data.status === 'ok') {
-      console.log('Прогресс синхронизирован:', data);
+      console.log('Прогресс синхронизирован успешно');
 
       // Обновляем количество астроконов у пользователя
       if (data.astral_coins_added > 0) {
@@ -605,6 +622,8 @@ async function fetchUserDataFromBot() {
     return;
   }
 
+  console.log('Запрашиваем обновленные данные пользователя с user_id:', telegramData.user_id);
+
   try {
     const response = await fetch(`http://127.0.0.1:8000/webapp/user_data?user_id=${telegramData.user_id}`, {
       method: 'GET',
@@ -613,15 +632,23 @@ async function fetchUserDataFromBot() {
       }
     });
 
+    console.log('Получен ответ от сервера при запросе данных пользователя:', response.status);
+
     const data = await response.json();
+
+    console.log('Данные от сервера при запросе пользователя:', data);
 
     if (data.status === 'ok') {
       const userData = data.user;
+
+      console.log('Полученные данные пользователя:', userData);
 
       // Обновляем локальные переменные из данных бота
       score = userData.astral_coins * 100000; // 1 астрокоин = 100000 астронов
       clickPower = userData.click_power || 1;
       autoClickers = userData.auto_clickers || 0;
+
+      console.log('Обновляем локальные данные: score=', score, 'clickPower=', clickPower, 'autoClickers=', autoClickers);
 
       // Обновляем данные в telegramData
       telegramData.astral_coins = userData.astral_coins;
@@ -638,7 +665,7 @@ async function fetchUserDataFromBot() {
       localStorage.setItem('astroClickerPower', clickPower);
       localStorage.setItem('astroAutoClickers', autoClickers);
 
-      console.log('Данные пользователя обновлены из бота:', userData);
+      console.log('Данные пользователя обновлены из бота');
     } else {
       console.error('Ошибка получения данных пользователя:', data.error);
     }
