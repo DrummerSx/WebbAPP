@@ -63,6 +63,7 @@ async function authenticateWithBot(initData) {
             clickPowerElement.textContent = clickPower;
             autoCountElement.textContent = autoClickers;
 
+            // Обновляем локальное хранилище с актуальными данными из бота
             localStorage.setItem('astroClickerScore', score);
             localStorage.setItem('astroClickerPower', clickPower);
             localStorage.setItem('astroAutoClickers', autoClickers);
@@ -71,6 +72,12 @@ async function authenticateWithBot(initData) {
             if (telegramData.reward_for_absence && telegramData.reward_for_absence > 0) {
                 showRewardPopup(telegramData.reward_for_absence);
             }
+
+            // Принудительно обновляем данные пользователя из бота через 1 секунду
+            // для обеспечения полной синхронизации
+            setTimeout(() => {
+                fetchUserDataFromBot();
+            }, 1000);
         } else {
             console.error('Ошибка аутентификации:', data.error);
         }
@@ -454,15 +461,18 @@ document.getElementById('auto-clicker-btn').addEventListener('click', async () =
 
 // Обработчик для кнопки сохранения прогресса
 document.getElementById('save-progress-btn').addEventListener('click', async () => {
+  // Показываем уведомление о начале сохранения
+  showNotification("Сохранение прогресса...");
+
   try {
     // Вызываем функцию синхронизации прогресса
     await syncProgressWithBot();
 
     // Показываем уведомление об успешном сохранении
-    showNotification("Прогресс успешно сохранен!");
+    showNotification("Прогресс успешно сохранен в базу данных!");
   } catch (error) {
     console.error('Ошибка при сохранении прогресса:', error);
-    showNotification("Ошибка при сохранении прогресса");
+    showNotification("Ошибка при сохранении прогресса в базу данных");
   }
 });
 
