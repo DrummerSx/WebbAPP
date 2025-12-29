@@ -376,6 +376,12 @@ document.getElementById('power-btn').addEventListener('click', async () => {
         localStorage.setItem('astroClickerPower', clickPower);
 
         updateUpgradeDisplay();
+
+        // Обновляем отображение на кнопке сразу
+        document.getElementById('power-level').textContent = clickPower;
+
+        // Немедленно синхронизируем изменения с базой данных
+        await syncUpgradeToBot('click_power', clickPower);
       } else {
         alert('Ошибка покупки: ' + purchaseResult.message);
       }
@@ -417,6 +423,12 @@ document.getElementById('auto-clicker-btn').addEventListener('click', async () =
         localStorage.setItem('astroAutoClickers', autoClickers);
 
         updateUpgradeDisplay();
+
+        // Обновляем отображение на кнопке сразу
+        document.getElementById('auto-clicker-count').textContent = autoClickers;
+
+        // Немедленно синхронизируем изменения с базой данных
+        await syncUpgradeToBot('auto_clicker', autoClickers);
       } else {
         alert('Ошибка покупки: ' + purchaseResult.message);
       }
@@ -464,6 +476,43 @@ async function purchaseUpgrade(itemType, itemCost) {
   } catch (error) {
     console.error('Ошибка при покупке улучшения:', error);
     return { success: false, message: "Ошибка сети" };
+  }
+}
+
+// Функция немедленной синхронизации улучшений с ботом
+async function syncUpgradeToBot(itemType, itemValue) {
+  if (!telegramData) {
+    console.log("Нет подключения к боту для синхронизации улучшения");
+    return;
+  }
+
+  try {
+    // Отправляем только измененные параметры
+    const syncData = {
+      user_id: telegramData.user_id,
+      score: score,
+      click_power: itemType === 'click_power' ? itemValue : clickPower,
+      auto_clickers: itemType === 'auto_clicker' ? itemValue : autoClickers,
+      clicks_since_last_sync: 0  // Не синхронизируем клики при обновлении улучшений
+    };
+
+    const response = await fetch('http://127.0.0.1:8000/webapp/sync_progress', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(syncData)
+    });
+
+    const data = await response.json();
+
+    if (data.status === 'ok') {
+      console.log(`Успешно синхронизировано улучшение ${itemType}: ${itemValue}`);
+    } else {
+      console.error('Ошибка синхронизации улучшения:', data.error);
+    }
+  } catch (error) {
+    console.error('Ошибка при синхронизации улучшения:', error);
   }
 }
 
