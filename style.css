@@ -6,12 +6,13 @@
 }
 
 body {
-  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  background: linear-gradient(135deg, #1a1a2e, #16213e, #0f0f23);
   color: #fff;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
 }
 
 .container {
@@ -26,29 +27,63 @@ h1 {
   font-size: 28px;
   margin-bottom: 20px;
   color: #ffcc00;
+  text-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
 }
 
 .stats {
-  font-size: 20px;
+  display: flex;
+  justify-content: space-around;
+  font-size: 18px;
   margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px 15px;
+  border-radius: 10px;
+  margin: 5px;
+  min-width: 120px;
+  text-align: center;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 204, 0, 0.2);
 }
 
 .planet {
   width: 180px;
   height: 180px;
-  margin: 0 auto;
+  margin: 0 auto 30px;
   cursor: pointer;
   transition: transform 0.1s ease;
+  position: relative;
+}
+
+.planet::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,204,0,0.2) 0%, rgba(255,204,0,0) 70%);
+  z-index: -1;
+  animation: glow 2s infinite alternate;
 }
 
 .planet img {
   width: 100%;
   height: auto;
-  filter: drop-shadow(0 0 10px rgba(255, 204, 0, 0.7));
+  filter: drop-shadow(0 0 15px rgba(255, 204, 0, 0.8));
+  transition: filter 0.2s ease;
 }
 
-.planet:active {
-  transform: scale(0.95);
+.planet:active img {
+  filter: drop-shadow(0 0 25px rgba(255, 204, 0, 1));
+}
+
+.planet:hover {
+  transform: scale(1.05);
 }
 
 .particles {
@@ -59,4 +94,94 @@ h1 {
   height: 100%;
   pointer-events: none;
   z-index: 10;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
+  }
+  to {
+    box-shadow: 0 0 40px rgba(255, 204, 0, 0.6);
+  }
+}
+
+/* Анимация для частиц */
+@keyframes float {
+  0% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--end-x), var(--end-y));
+    opacity: 0;
+  }
+}
+
+.astro-info {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  font-size: 14px;
+  color: #ccc;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 204, 0, 0.2);
+}
+
+.astro-info p {
+  margin: 0;
+}
+
+.upgrades {
+  margin-top: 30px;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 204, 0, 0.3);
+}
+
+.upgrades h3 {
+  color: #ffcc00;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.upgrade-item {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 204, 0, 0.1);
+}
+
+.upgrade-item button {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(to right, #ffcc00, #ff9900);
+  color: #000;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upgrade-item button:hover {
+  background: linear-gradient(to right, #ffd700, #ffaa00);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 204, 0, 0.4);
+}
+
+.upgrade-item button:disabled {
+  background: #555;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.upgrade-item p {
+  margin: 10px 0 0;
+  font-size: 14px;
+  color: #ccc;
+  text-align: center;
 }

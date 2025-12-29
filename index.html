@@ -9,11 +9,30 @@
 <body>
   <div class="container">
     <h1>✨ Астро-Кликер</h1>
-    <div class="stats">Астронов: <span id="score">0</span></div>
+    <div class="stats">
+      <div class="stat-item">Астронов: <span id="score">0</span></div>
+      <div class="stat-item">Сила клика: <span id="click-power">1</span></div>
+      <div class="stat-item">Автокликеры: <span id="auto-count">0</span>/сек</div>
+    </div>
     <div class="planet" id="planet">
       <img src="https://cdn-icons-png.flaticon.com/128/2556/2556557.png" alt="Планета" />
     </div>
     <div class="particles" id="particles"></div>
+    <div class="astro-info">
+      <p>Собирайте астронов, чтобы раскрывать тайны космоса!</p>
+    </div>
+
+    <div class="upgrades">
+      <h3>Улучшения</h3>
+      <div class="upgrade-item" id="power-upgrade">
+        <button id="power-btn">Улучшить силу клика (Уровень: <span id="power-level">1</span>)</button>
+        <p>Стоимость: <span id="power-cost">10</span> астронов | +1 за клик</p>
+      </div>
+      <div class="upgrade-item" id="auto-clicker-upgrade">
+        <button id="auto-clicker-btn">Купить автокликер (Кол-во: <span id="auto-clicker-count">0</span>)</button>
+        <p>Стоимость: <span id="auto-clicker-cost">50</span> астронов | +1 в секунду</p>
+      </div>
+    </div>
   </div>
 
   <script src="script.js"></script>
